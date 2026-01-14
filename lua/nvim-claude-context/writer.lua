@@ -7,6 +7,49 @@ local treesitter = require("nvim-claude-context.treesitter")
 local debounce_timer = nil
 local config = nil
 
+local LOCK_TIMEOUT_MS = 1000
+local LOCK_STALE_SEC = 5
+local LOCK_RETRY_MS = 10
+
+local get_lock_path = function()
+  return vim.fn.expand(config.output_path) .. ".lock"
+end
+
+local is_lock_stale = function(lock_path)
+  local stat = uv.fs_stat(lock_path)
+  if not stat then
+    return true
+  end
+  return (os.time() - stat.mtime.sec) > LOCK_STALE_SEC
+end
+
+local acquire_lock = function()
+  local lock_path = get_lock_path()
+  local start = uv.hrtime()
+  local timeout_ns = LOCK_TIMEOUT_MS * 1000000
+
+  while (uv.hrtime() - start) < timeout_ns do
+    local fd = uv.fs_open(lock_path, "wx", 438)
+    if fd then
+      uv.fs_write(fd, tostring(pid))
+      uv.fs_close(fd)
+      return true
+    end
+
+    if is_lock_stale(lock_path) then
+      os.remove(lock_path)
+    else
+      vim.wait(LOCK_RETRY_MS)
+    end
+  end
+
+  return false
+end
+
+local release_lock = function()
+  os.remove(get_lock_path())
+end
+
 M.set_config = function(cfg)
   config = cfg
 end
@@ -162,9 +205,13 @@ M.write = function(explicit)
   if config.mode == "manual" then
     copy_to_clipboard(instance_data)
   else
+    if not acquire_lock() then
+      return
+    end
     local context = read_context()
     context = update_instance(context, instance_data)
     write_context(context)
+    release_lock()
   end
 end
 
@@ -195,6 +242,10 @@ M.remove_instance = function()
     return
   end
 
+  if not acquire_lock() then
+    return
+  end
+
   local context = read_context()
   local new_instances = {}
 
@@ -212,6 +263,8 @@ M.remove_instance = function()
   else
     write_context(context)
   end
+
+  release_lock()
 end
 
 return M
