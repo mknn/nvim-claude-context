@@ -8,7 +8,7 @@ Claude Code integrates with popular IDEs to see what files you have open. This p
 
 ## Installation
 
-### lazy.nvim
+Install with your favorite plugin manager, for example lazy.nvim:
 
 ```lua
 {
@@ -17,43 +17,23 @@ Claude Code integrates with popular IDEs to see what files you have open. This p
 }
 ```
 
-### packer.nvim
+All options with defaults:
 
 ```lua
-use {
+{
   "mknn/nvim-claude-context",
-  config = function()
-    require("nvim-claude-context").setup()
-  end,
-}
-```
-
-### vim-plug
-
-```vim
-Plug 'mknn/nvim-claude-context'
-```
-
-Then in your init.lua:
-
-```lua
-require("nvim-claude-context").setup()
-```
-
-## Configuration
-
-```lua
-require("nvim-claude-context").setup({
-  output_path = "~/.claude/nvim-context.json",  -- Where to write the context file
-  debounce_ms = 100,                      -- Delay before writing (ms)
-  include = {
-    cwd = true,          -- Include current working directory
-    active_file = true,  -- Include active file path
-    cursor = true,       -- Include cursor line/column
-    buffers = true,      -- Include list of open buffers
+  opts = {
+    output_path = "~/.claude/nvim-context.json",
+    debounce_ms = 100,
+    include = {
+      cwd = true,
+      active_file = true,
+      cursor = true,
+      buffers = true,
+    },
+    enabled = true,
   },
-  enabled = true,        -- Enable/disable the plugin
-})
+}
 ```
 
 ## Claude Code Setup
