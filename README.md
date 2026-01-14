@@ -4,7 +4,7 @@ A Neovim plugin that exports your editing context (open buffers, cursor position
 
 ## Why?
 
-Claude Code can integrate with VS Code to see what files you have open. This plugin brings similar functionality to Neovim—Claude can see what you're working on and provide better context-aware assistance.
+Claude Code integrates with popular IDEs to see what files you have open. This plugin brings that same functionality to Neovim—Claude can see what you're working on and provide better context-aware assistance.
 
 ## Installation
 
@@ -12,7 +12,7 @@ Claude Code can integrate with VS Code to see what files you have open. This plu
 
 ```lua
 {
-  "yourusername/nvim-claude-context",
+  "mknn/nvim-claude-context",
   opts = {},
 }
 ```
@@ -21,7 +21,7 @@ Claude Code can integrate with VS Code to see what files you have open. This plu
 
 ```lua
 use {
-  "yourusername/nvim-claude-context",
+  "mknn/nvim-claude-context",
   config = function()
     require("nvim-claude-context").setup()
   end,
@@ -31,7 +31,7 @@ use {
 ### vim-plug
 
 ```vim
-Plug 'yourusername/nvim-claude-context'
+Plug 'mknn/nvim-claude-context'
 ```
 
 Then in your init.lua:
