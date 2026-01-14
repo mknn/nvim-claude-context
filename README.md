@@ -6,6 +6,33 @@ A Neovim plugin that exports your editing context (open buffers, cursor position
 
 Claude Code integrates with popular IDEs to see what files you have open. This plugin brings that same functionality to Neovim—Claude can see what you're working on and provide better context-aware assistance.
 
+## Usage
+
+The typical workflow uses two terminals side by side:
+
+```
+┌─────────────────────────────────┬─────────────────────────────────┐
+│                                 │                                 │
+│           Neovim                │         Claude Code             │
+│                                 │                                 │
+│  You edit code here.            │  You talk to Claude here.       │
+│  Cursor position and open       │                                 │
+│  buffers are tracked.           │  > refactor this                │
+│                                 │  > what's wrong here?           │
+│  src/services/auth.ts:42        │  > simplify this function       │
+│  ▌                              │  > add error handling           │
+│                                 │                                 │
+└─────────────────────────────────┴─────────────────────────────────┘
+```
+
+Because Claude knows exactly which file and line you're looking at, you can give short, natural commands without specifying file paths or pasting code. Just position your cursor and ask.
+
+**Example commands that just work:**
+- "refactor this" — Claude reads your cursor position and refactors the function you're in
+- "what does this do?" — explains the code at your cursor
+- "add types" — adds TypeScript types to the current function
+- "this is slow, why?" — analyzes performance of the code you're looking at
+
 ## Installation
 
 Install with your favorite plugin manager, for example lazy.nvim:
@@ -39,28 +66,35 @@ All options with defaults:
 
 ## Claude Code Setup
 
-Add one of these lines to your `CLAUDE.md` (either global `~/.claude/CLAUDE.md` or project-level):
+Add one of these to your `CLAUDE.md` (either global `~/.claude/CLAUDE.md` or project-level):
 
-### Option 1: Emphasized
+### Option 1: Strict (Recommended)
 
-Best if you have a large CLAUDE.md and want to ensure Claude always checks your editor context.
+Best for ensuring Claude always checks your editor context, especially for ambiguous commands like "simplify this" or "fix this".
+
+```
+# FIRST PRIORITY - Nvim Context
+CRITICAL: When I give ANY ambiguous command about code (like "simplify this", "fix this", "what's wrong here", "refactor this"), you MUST IMMEDIATELY check ~/.claude/nvim-context.json BEFORE doing anything else. This file tells you exactly what file and line I'm looking at.
+
+DO NOT:
+- Guess from branch names
+- Explore the codebase looking for context
+- Ask clarifying questions
+
+INSTEAD: Read nvim-context.json first. Always.
+```
+
+### Option 2: Simple
+
+A shorter version if you prefer minimal CLAUDE.md instructions.
 
 ```
 IMPORTANT: Before discussing code, check ~/.claude/nvim-context.json to see what files I have open in nvim.
 ```
 
-### Option 2: Workflow Section
+### Option 3: Conditional
 
-Best if you organize your CLAUDE.md with headers and sections.
-
-```
-# Editor Context
-Always check ~/.claude/nvim-context.json at the start of coding tasks to see my open nvim buffers and cursor position.
-```
-
-### Option 3: Conditional (Recommended)
-
-Best for most users. Only triggers for code-related questions, less noisy for general conversation.
+Only triggers for explicit code-related questions, less assertive.
 
 ```
 When I ask about code or files, first check ~/.claude/nvim-context.json to see what I'm currently editing in nvim.
