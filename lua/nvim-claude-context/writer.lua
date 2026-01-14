@@ -87,10 +87,6 @@ local build_instance_data = function()
     data.active = get_active_file()
   end
 
-  if config.include.cursor and data.active then
-    -- cursor info is already in active
-  end
-
   if config.include.buffers then
     data.buffers = get_buffers()
   end

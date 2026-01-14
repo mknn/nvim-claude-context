@@ -56,7 +56,6 @@ All options with defaults:
     include = {
       cwd = true,
       active_file = true,
-      cursor = true,
       buffers = true,
       treesitter = true,  -- include current function/class name
     },
