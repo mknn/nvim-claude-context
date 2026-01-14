@@ -2,6 +2,7 @@ local M = {}
 
 local uv = vim.loop or vim.uv
 local pid = vim.fn.getpid()
+local treesitter = require("nvim-claude-context.treesitter")
 
 local debounce_timer = nil
 local config = nil
@@ -56,11 +57,20 @@ local get_active_file = function()
   end
 
   local cursor = vim.api.nvim_win_get_cursor(0)
-  return {
+  local result = {
     file = name,
     line = cursor[1],
     col = cursor[2] + 1,
   }
+
+  if config.include.treesitter then
+    local ts_context = treesitter.get_context()
+    if ts_context then
+      result.treesitter = ts_context
+    end
+  end
+
+  return result
 end
 
 local build_instance_data = function()

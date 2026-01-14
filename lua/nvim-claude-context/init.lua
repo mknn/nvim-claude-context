@@ -10,6 +10,7 @@ local defaults = {
     active_file = true,
     cursor = true,
     buffers = true,
+    treesitter = true,
   },
   enabled = true,
 }

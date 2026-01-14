@@ -30,6 +30,7 @@ All options with defaults:
       active_file = true,
       cursor = true,
       buffers = true,
+      treesitter = true,  -- include current function/class name
     },
     enabled = true,
   },
@@ -78,7 +79,11 @@ Claude will then read this file to understand what you're working on.
       "active": {
         "file": "/Users/you/project/src/main.ts",
         "line": 42,
-        "col": 15
+        "col": 15,
+        "treesitter": {
+          "function": "handleAuth",
+          "class": "AuthService"
+        }
       },
       "buffers": [
         "/Users/you/project/src/main.ts",
@@ -89,6 +94,49 @@ Claude will then read this file to understand what you're working on.
   ]
 }
 ```
+
+The `treesitter` field is only present when the cursor is inside a recognized function or class and treesitter is available for the buffer.
+
+## Treesitter Context
+
+The `treesitter` option adds function and class names to the context output. This requires [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) with parsers installed.
+
+### Requirements
+
+1. **nvim-treesitter** plugin (use the `master` branch):
+```lua
+{
+  "nvim-treesitter/nvim-treesitter",
+  branch = "master",
+  build = ":TSUpdate",
+}
+```
+
+2. **tree-sitter CLI** (for compiling parsers):
+```bash
+brew install tree-sitter  # macOS
+# or see https://github.com/tree-sitter/tree-sitter
+```
+
+3. **Language parsers** for your languages:
+```vim
+:TSInstall lua typescript tsx java python go rust
+```
+
+### Tested Languages
+
+| Language | Status |
+|----------|--------|
+| Lua | ✅ Tested |
+| TypeScript/JavaScript | ✅ Tested |
+| Java | ✅ Tested |
+| Python, Go, Rust, C/C++ | May work (untested) |
+
+Other languages may work since the plugin uses common treesitter node types (`function_declaration`, `method_declaration`, `class_declaration`, etc.). If a language doesn't work, open an issue.
+
+### Graceful Degradation
+
+If treesitter isn't available or the parser isn't installed for a language, the plugin continues working—you just won't see the `treesitter` field in the output
 
 ## Multi-Instance Support
 
