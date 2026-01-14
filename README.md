@@ -52,6 +52,7 @@ All options with defaults:
   opts = {
     output_path = "~/.claude/nvim-context.json",
     debounce_ms = 100,
+    mode = "auto",  -- "auto" writes to file, "manual" copies to clipboard on :ClaudeContextRefresh
     include = {
       cwd = true,
       active_file = true,
@@ -180,9 +181,33 @@ When a Neovim instance exits, it removes itself from the file.
 
 ## Commands
 
-- `:ClaudeContextRefresh` - Manually refresh the context file
+- `:ClaudeContextRefresh` - Manually refresh the context (writes to file in auto mode, copies to clipboard in manual mode)
 - `:ClaudeContextDisable` - Temporarily disable context updates
 - `:ClaudeContextEnable` - Re-enable context updates
+
+## Manual Mode
+
+Set `mode = "manual"` to copy context to your clipboard instead of writing to a file.
+
+In manual mode:
+
+- Context is only updated when you run `:ClaudeContextRefresh`
+- The JSON is copied to your system clipboard
+- No file is written—no CLAUDE.md setup needed
+
+### Example Configuration
+
+```lua
+{
+  "mknn/nvim-claude-context",
+  opts = { mode = "manual" },
+  keys = {
+    { "<leader>cc", "<cmd>ClaudeContextRefresh<cr>", desc = "Copy context to clipboard" },
+  },
+}
+```
+
+Press `<leader>cc`, then paste into Claude. The JSON includes your current file, line, function name, and open buffers.
 
 ## How It Works
 

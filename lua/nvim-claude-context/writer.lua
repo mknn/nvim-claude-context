@@ -115,6 +115,12 @@ local update_instance = function(context, instance_data)
   return context
 end
 
+local copy_to_clipboard = function(instance_data)
+  local encoded = vim.json.encode(instance_data)
+  vim.fn.setreg('+', encoded)
+  vim.notify("[nvim-claude-context] Context copied to clipboard", vim.log.levels.INFO)
+end
+
 local write_context = function(context)
   local path = vim.fn.expand(config.output_path)
   local dir = vim.fn.fnamemodify(path, ":h")
@@ -145,15 +151,25 @@ local write_context = function(context)
   return true
 end
 
-M.write = function()
+M.write = function(explicit)
   if not config or not config.enabled then
     return
   end
 
-  local context = read_context()
+  -- In manual mode, only write on explicit command
+  if config.mode == "manual" and not explicit then
+    return
+  end
+
   local instance_data = build_instance_data()
-  context = update_instance(context, instance_data)
-  write_context(context)
+
+  if config.mode == "manual" then
+    copy_to_clipboard(instance_data)
+  else
+    local context = read_context()
+    context = update_instance(context, instance_data)
+    write_context(context)
+  end
 end
 
 M.write_debounced = function()

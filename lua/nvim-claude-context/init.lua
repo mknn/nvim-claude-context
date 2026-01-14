@@ -5,6 +5,7 @@ local writer = require("nvim-claude-context.writer")
 local defaults = {
   output_path = "~/.claude/nvim-context.json",
   debounce_ms = 100,
+  mode = "auto", -- "auto" or "manual"
   include = {
     cwd = true,
     active_file = true,
@@ -69,7 +70,7 @@ M.enable = function()
 end
 
 M.refresh = function()
-  writer.write()
+  writer.write(true)
 end
 
 return M
