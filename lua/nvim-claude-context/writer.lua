@@ -206,6 +206,49 @@ local copy_to_clipboard = function(instance_data)
   vim.notify("[nvim-claude-context] Context copied to clipboard", vim.log.levels.INFO)
 end
 
+local format_for_ai = function(data)
+  local lines = {}
+  table.insert(lines, "<neovim-context>")
+  table.insert(lines, "The user is sharing their current editor position. Analyze this location:")
+  table.insert(lines, "")
+
+  if data.active then
+    table.insert(lines, "**File**: `" .. data.active.file .. "`")
+    table.insert(lines, "**Position**: Line " .. data.active.line .. ", column " .. data.active.col)
+
+    if data.active.treesitter then
+      local ts = data.active.treesitter
+      if ts["function"] then
+        table.insert(lines, "**Inside**: function `" .. ts["function"] .. "`")
+      elseif ts["class"] then
+        table.insert(lines, "**Inside**: class `" .. ts["class"] .. "`")
+      end
+    end
+  end
+
+  if data.cwd then
+    table.insert(lines, "**Working directory**: `" .. data.cwd .. "`")
+  end
+
+  if data.buffers and #data.buffers > 0 then
+    local names = {}
+    for _, buf in ipairs(data.buffers) do
+      table.insert(names, vim.fn.fnamemodify(buf, ":t"))
+    end
+    table.insert(lines, "**Open buffers**: " .. table.concat(names, ", "))
+  end
+
+  table.insert(lines, "")
+  table.insert(lines, "Instructions:")
+  table.insert(lines, "1. Read the active file at the specified position")
+  table.insert(lines, "2. Examine the surrounding code to understand the context")
+  table.insert(lines, "3. If inside a function/class, understand its purpose and how this line fits")
+  table.insert(lines, "4. Consider the open buffers as potentially related files")
+  table.insert(lines, "</neovim-context>")
+
+  return table.concat(lines, "\n")
+end
+
 local write_context = function(context)
   local path = vim.fn.expand(config.output_path)
   local dir = vim.fn.fnamemodify(path, ":h")
@@ -311,6 +354,13 @@ M.remove_instance = function()
   end
 
   release_lock()
+end
+
+M.copy_formatted = function()
+  local instance_data = build_instance_data()
+  local formatted = format_for_ai(instance_data)
+  vim.fn.setreg('+', formatted)
+  vim.notify("[nvim-claude-context] Formatted context copied to clipboard", vim.log.levels.INFO)
 end
 
 return M

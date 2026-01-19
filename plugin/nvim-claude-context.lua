@@ -7,6 +7,10 @@ vim.api.nvim_create_user_command("ClaudeContextRefresh", function()
   require("nvim-claude-context").refresh()
 end, { desc = "Refresh Claude context file" })
 
+vim.api.nvim_create_user_command("ClaudeContextCopy", function()
+  require("nvim-claude-context").copy_formatted()
+end, { desc = "Copy formatted context to clipboard" })
+
 vim.api.nvim_create_user_command("ClaudeContextDisable", function()
   require("nvim-claude-context").disable()
 end, { desc = "Disable Claude context updates" })

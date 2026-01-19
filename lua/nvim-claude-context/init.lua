@@ -72,4 +72,8 @@ M.refresh = function()
   writer.write(true)
 end
 
+M.copy_formatted = function()
+  writer.copy_formatted()
+end
+
 return M
