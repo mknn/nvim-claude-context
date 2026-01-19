@@ -154,8 +154,54 @@ local update_instance = function(context, instance_data)
   return context
 end
 
+local pretty_json
+pretty_json = function(data, indent)
+  indent = indent or 0
+  local spaces = string.rep("  ", indent)
+  local inner_spaces = string.rep("  ", indent + 1)
+
+  if type(data) ~= "table" then
+    return vim.json.encode(data)
+  end
+
+  local is_array = vim.islist(data)
+  local parts = {}
+
+  if is_array then
+    if #data == 0 then
+      return "[]"
+    end
+    table.insert(parts, "[\n")
+    for i, v in ipairs(data) do
+      table.insert(parts, inner_spaces .. pretty_json(v, indent + 1))
+      if i < #data then
+        table.insert(parts, ",")
+      end
+      table.insert(parts, "\n")
+    end
+    table.insert(parts, spaces .. "]")
+  else
+    local keys = vim.tbl_keys(data)
+    if #keys == 0 then
+      return "{}"
+    end
+    table.sort(keys)
+    table.insert(parts, "{\n")
+    for i, k in ipairs(keys) do
+      table.insert(parts, inner_spaces .. '"' .. tostring(k) .. '": ' .. pretty_json(data[k], indent + 1))
+      if i < #keys then
+        table.insert(parts, ",")
+      end
+      table.insert(parts, "\n")
+    end
+    table.insert(parts, spaces .. "}")
+  end
+
+  return table.concat(parts)
+end
+
 local copy_to_clipboard = function(instance_data)
-  local encoded = vim.json.encode(instance_data)
+  local encoded = pretty_json(instance_data)
   vim.fn.setreg('+', encoded)
   vim.notify("[nvim-claude-context] Context copied to clipboard", vim.log.levels.INFO)
 end
